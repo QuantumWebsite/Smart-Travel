@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Works - Database Issue Demo</title>
+</head>
+<body>
+    <h1>CORS is Working - The Error is in the Database</h1>
+    <p>This page demonstrates that CORS is properly configured, but there's a database issue.</p>
+    
+    <div>
+        <h2>Test Endpoints</h2>
+        <button id="testOptions">Test OPTIONS (CORS Preflight)</button>
+        <button id="testCorsTest">Test /cors-test Endpoint</button>
+    </div>
+    
+    <div id="result" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; background-color: #f5f5f5;">
+        <h3>Results:</h3>
+        <pre id="resultData">Click a button to test</pre>
+    </div>
+    
+    <div style="margin-top: 30px; padding: 10px; border: 1px solid #ff6b6b; background-color: #ffe8e8;">
+        <h3>Database Error Explanation:</h3>
+        <p>The actual error is:</p>
+        <pre style="background-color: #333; color: #fff; padding: 10px;">sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column user.email_verified does not exist</pre>
+        <p>This means your database schema does not match your SQLAlchemy model. The model contains an 'email_verified' column but it doesn't exist in the database.</p>
+        <p>To fix this, you need to:</p>
+        <ol>
+            <li>Add the missing column to your database through a migration</li>
+            <li>Or update your model to match the existing database schema</li>
+        </ol>
+    </div>
+    
+    <script>
+        document.getElementById('testOptions').addEventListener('click', async () => {
+            document.getElementById('resultData').textContent = 'Testing OPTIONS request...';
+            
+            try {
+                // Test OPTIONS request explicitly with fetch
+                const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'http://localhost:3000',
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                
+                // Get all headers
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+                
+                document.getElementById('resultData').textContent = 
+                    `OPTIONS Status: ${response.status}\n\nHeaders:\n${JSON.stringify(headers, null, 2)}\n\nCORS IS WORKING CORRECTLY!\nThe issue is with the database schema.`;
+                
+            } catch (error) {
+                document.getElementById('resultData').textContent = 
+                    `Error: ${error.toString()}`;
+            }
+        });
+        
+        document.getElementById('testCorsTest').addEventListener('click', async () => {
+            document.getElementById('resultData').textContent = 'Testing /cors-test endpoint...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/cors-test', {
+                    method: 'GET',
+                    headers: {
+                        'Origin': 'http://localhost:3000'
+                    }
+                });
+                
+                const data = await response.json();
+                document.getElementById('resultData').textContent = 
+                    `Status: ${response.status}\n\nResponse:\n${JSON.stringify(data, null, 2)}`;
+                
+            } catch (error) {
+                document.getElementById('resultData').textContent = 
+                    `Error: ${error.toString()}`;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,535 @@
+{
+  "info": {
+    "_postman_id": "d9b9a9f1-f5a1-4e05-abb6-5e9c2ab9951e",
+    "name": "Smart Travel API",
+    "description": "API collection for Smart Travel application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string",
+      "description": "Base URL for Smart Travel API"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Authentication token"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Authentication related endpoints",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "user@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "password",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login/access-token",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login", "access-token"]
+            },
+            "description": "OAuth2 compatible token login, get an access token for future requests"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('token', jsonData.access_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"password123\",\n    \"full_name\": \"New User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user"
+          },
+          "response": []
+        },
+        {
+          "name": "Password Recovery",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/password-recovery/user@example.com",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "password-recovery", "user@example.com"]
+            },
+            "description": "Password Recovery"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"recovery_token_here\",\n    \"new_password\": \"new_password_here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/reset-password",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "reset-password"]
+            },
+            "description": "Reset password"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "User management endpoints",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Retrieve users. Only for superusers."
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"password\",\n    \"full_name\": \"New User\",\n    \"is_superuser\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            },
+            "description": "Create new user. Only for superusers."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me"]
+            },
+            "description": "Get current user profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Current User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"full_name\": \"Updated Name\",\n    \"email\": \"updated@example.com\",\n    \"password\": \"newpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me"]
+            },
+            "description": "Update own user profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["users", "1"]
+            },
+            "description": "Get a specific user by id"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "description": "Search related endpoints",
+      "item": [
+        {
+          "name": "Scrape Travel Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"origin\": \"New York\",\n    \"destination\": \"Paris\",\n    \"departure_date\": \"2025-06-15\",\n    \"return_date\": \"2025-06-25\",\n    \"adults\": 2,\n    \"children\": 0,\n    \"infants\": 0,\n    \"cabin_class\": \"economy\",\n    \"hotel_rating\": 4,\n    \"budget\": 2000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/search/scrape",
+              "host": ["{{base_url}}"],
+              "path": ["search", "scrape"]
+            },
+            "description": "Trigger a scraping job for travel data"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Search Results By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/search/1",
+              "host": ["{{base_url}}"],
+              "path": ["search", "1"]
+            },
+            "description": "Get search results by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All User Searches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/search",
+              "host": ["{{base_url}}"],
+              "path": ["search"]
+            },
+            "description": "Get all searches for the current user"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "description": "Recommendation related endpoints",
+      "item": [
+        {
+          "name": "Get All Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/recommendations",
+              "host": ["{{base_url}}"],
+              "path": ["recommendations"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Get all recommendations for the current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recommendation By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/recommendations/1",
+              "host": ["{{base_url}}"],
+              "path": ["recommendations", "1"]
+            },
+            "description": "Get a specific recommendation by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Deals",
+      "description": "Deals related endpoints",
+      "item": [
+        {
+          "name": "Get All Saved Deals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/deals",
+              "host": ["{{base_url}}"],
+              "path": ["deals"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Get all saved deals for the current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Deal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"recommendation_id\": 1,\n    \"trip_name\": \"Summer in Paris\",\n    \"notes\": \"Great deal on hotels and flights!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/deals",
+              "host": ["{{base_url}}"],
+              "path": ["deals"]
+            },
+            "description": "Save a new deal"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deal By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/deals/1",
+              "host": ["{{base_url}}"],
+              "path": ["deals", "1"]
+            },
+            "description": "Get a specific deal by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Deal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"trip_name\": \"Updated Trip Name\",\n    \"notes\": \"Updated notes about this deal\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/deals/1",
+              "host": ["{{base_url}}"],
+              "path": ["deals", "1"]
+            },
+            "description": "Update a specific deal"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Deal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/deals/1",
+              "host": ["{{base_url}}"],
+              "path": ["deals", "1"]
+            },
+            "description": "Delete a specific deal"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "description": "Health check endpoint",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/",
+              "host": ["http://localhost:8000"],
+              "path": [""]
+            },
+            "description": "API health check endpoint"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

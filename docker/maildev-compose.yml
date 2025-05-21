@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  maildev:
+    image: maildev/maildev:latest
+    container_name: smart_travel_maildev
+    ports:
+      - "1025:1025"  # SMTP port
+      - "1080:1080"  # Web interface port
+    environment:
+      - MAILDEV_WEB_USER=admin    # Optional: Set username for web UI
+      - MAILDEV_WEB_PASS=password # Optional: Set password for web UI
+    networks:
+      - smart_travel_network
+    restart: unless-stopped
+
+networks:
+  smart_travel_network:
+    name: smart_travel_network

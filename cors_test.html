@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test</title>
+    <script>
+        function testCors() {
+            document.getElementById('result').textContent = 'Testing...';
+            
+            // Test the CORS test endpoint
+            fetch('http://localhost:8000/cors-test', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                document.getElementById('status').textContent = response.status;
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('cors-status').textContent = 'CORS is working!';
+                document.getElementById('cors-status').style.color = 'green';
+            })
+            .catch(error => {
+                document.getElementById('result').textContent = error.toString();
+                document.getElementById('cors-status').textContent = 'CORS is NOT working!';
+                document.getElementById('cors-status').style.color = 'red';
+            });
+            
+            // Test the register endpoint
+            fetch('http://localhost:8000/api/v1/auth/register', {
+                method: 'OPTIONS',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Origin': 'http://localhost:3000'
+                }
+            })
+            .then(response => {
+                document.getElementById('register-status').textContent = response.status;
+                document.getElementById('register-cors').textContent = 'Register endpoint CORS is working!';
+                document.getElementById('register-cors').style.color = 'green';
+            })
+            .catch(error => {
+                document.getElementById('register-status').textContent = error.toString();
+                document.getElementById('register-cors').textContent = 'Register endpoint CORS is NOT working!';
+                document.getElementById('register-cors').style.color = 'red';
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>CORS Test</h1>
+    <button onclick="testCors()">Test CORS</button>
+    <h2>CORS Test Endpoint</h2>
+    <div>Status: <span id="status"></span></div>
+    <div>CORS Status: <span id="cors-status">Not tested</span></div>
+    <pre id="result">Results will appear here</pre>
+    
+    <h2>Register Endpoint</h2>
+    <div>Status: <span id="register-status"></span></div>
+    <div>CORS Status: <span id="register-cors">Not tested</span></div>
+</body>
+</html>
